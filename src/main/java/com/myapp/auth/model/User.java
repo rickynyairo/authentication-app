@@ -5,7 +5,11 @@ import javax.persistence.*;
 import java.util.Set;
 
 @Entity
-@Table(name = "user")
+@Table(name = "user", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {
+        "username"
+    })
+})
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,6 +22,11 @@ public class User {
     @ManyToMany
     private Set<Role> roles;
 
+    public User(String username, String password) {
+        this.username = username;
+        this.password = password;
+    }
+    
     public Long getId() {
         return id;
     }
