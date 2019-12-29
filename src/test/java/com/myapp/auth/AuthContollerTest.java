@@ -26,6 +26,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
+class LoginRequest{
+    public String usernameorEmail;
+    public String password;
+}
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
@@ -41,16 +45,30 @@ class AuthControllerTests {
     public void testCreateUserWithMockRepository() throws Exception {
         Optional<User> optUser = Optional.of(new User("New User", "testuser", "test_email@email.com", "password"));
         when(userRepository.findByUsername("testuser")).thenReturn(optUser);
-        // assertTrue(userRepository.findByEmail("test_email@email.com").getName().contains("testuser"));
     }
 
-    public void testLoginUserWithMockMVC() throws Exception {
-        String url = "/api/auth/signin";
+    public void testSignupUser() throws Exception {
+        String url = "/api/auth/signup";
         Optional<User> user = Optional.of( new User("New User", "testuser2", "test_email2@email.com", "password"));
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
         ObjectWriter ow = mapper.writer().withDefaultPrettyPrinter();
         String requestJson = ow.writeValueAsString(user);
+        mockMvc.perform(
+            post(url)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(requestJson)).andExpect(status().isOk());
+    }
+
+    public void testSigninUser() throws Exception {
+        String url = "/api/auth/signin";
+        LoginRequest userRequest = new LoginRequest();
+        userRequest.usernameorEmail = "testuser2";
+        userRequest.password = "password";
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
+        ObjectWriter ow = mapper.writer().withDefaultPrettyPrinter();
+        String requestJson = ow.writeValueAsString(userRequest);
         mockMvc.perform(
             post(url)
             .contentType(MediaType.APPLICATION_JSON)
